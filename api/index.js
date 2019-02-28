@@ -1,15 +1,9 @@
-import Keyholder from '../lib';
 import Sequelize from 'sequelize';
 import basicAuth from 'basic-auth';
 import express from 'express';
 
 const app = express();
 const sequelize = new Sequelize(process.env.DATABASE_URL);
-
-const keyholder = new Keyholder({
-  id: 1,
-  apiKey: 'b1e1810b-de12-47fb-a462-c5577cf8d5e2'
-});
 
 const User = sequelize.define('user', {
   apiKey: {
@@ -70,8 +64,6 @@ app.get('/test/:apiKey', async (req, res) => {
 });
 
 sequelize.sync().then(async () => {
-  // const isValid = await keyholder.test('7a85eb93-13e3-4825-9a9e-ab6d15d4b12f');
-  // console.log('valid', isValid);
   app.listen(process.env.PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${process.env.PORT}`);
   });
