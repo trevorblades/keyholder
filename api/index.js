@@ -1,10 +1,15 @@
+import Keyholder from '../lib';
 import Sequelize from 'sequelize';
 import basicAuth from 'basic-auth';
 import express from 'express';
-import http from 'http';
 
 const app = express();
 const sequelize = new Sequelize(process.env.DATABASE_URL);
+
+const keyholder = new Keyholder({
+  id: 1,
+  apiKey: 'b1e1810b-de12-47fb-a462-c5577cf8d5e2'
+});
 
 const User = sequelize.define('user', {
   apiKey: {
@@ -26,28 +31,6 @@ User.hasMany(Key);
 
 app.get('/', (req, res) => res.sendStatus(200));
 
-const encoded = Buffer.from('1:b1e1810b-de12-47fb-a462-c5577cf8d5e2').toString(
-  'base64'
-);
-app.get('/test/:apiKey', (req, res) => {
-  http
-    .get(
-      `http://localhost:4001/verify/${req.params.apiKey}`,
-      {
-        headers: {
-          authorization: `Basic ${encoded}`
-        }
-      },
-      ({statusCode}) => {
-        console.log(statusCode);
-        res.sendStatus(statusCode);
-      }
-    )
-    .on('error', error => {
-      res.status(400).send(error);
-    });
-});
-
 app.use(async (req, res, next) => {
   const auth = basicAuth(req);
   if (auth) {
@@ -68,7 +51,7 @@ app.use(async (req, res, next) => {
   res.sendStatus(403);
 });
 
-app.get('/verify/:apiKey', async (req, res) => {
+app.get('/test/:apiKey', async (req, res) => {
   try {
     const [key] = await res.locals.user.getKeys({
       where: {
@@ -86,7 +69,9 @@ app.get('/verify/:apiKey', async (req, res) => {
   }
 });
 
-sequelize.sync().then(() => {
+sequelize.sync().then(async () => {
+  const isValid = await keyholder.test('7a85eb93-13e3-4825-9a9e-ab6d15d4b12f');
+  console.log('valid', isValid);
   app.listen(process.env.PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${process.env.PORT}`);
   });
