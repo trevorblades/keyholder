@@ -70,8 +70,8 @@ app.get('/test/:apiKey', async (req, res) => {
 });
 
 sequelize.sync().then(async () => {
-  const isValid = await keyholder.test('7a85eb93-13e3-4825-9a9e-ab6d15d4b12f');
-  console.log('valid', isValid);
+  // const isValid = await keyholder.test('7a85eb93-13e3-4825-9a9e-ab6d15d4b12f');
+  // console.log('valid', isValid);
   app.listen(process.env.PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${process.env.PORT}`);
   });
