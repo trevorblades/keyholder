@@ -74,7 +74,13 @@ const server = new ApolloServer({
   }
 });
 
-server.applyMiddleware({app});
+// TODO: add auth
+server.applyMiddleware({
+  app,
+  cors: {
+    origin: 'https://keyholder.dev'
+  }
+});
 
 sequelize.sync().then(() => {
   // const user = await User.create();
