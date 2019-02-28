@@ -20,9 +20,11 @@
   ],
   "main": "lib/index.js",
   "dependencies": {
+    "apollo-server-express": "^2.4.8",
     "basic-auth": "^2.0.1",
     "esm": "^3.2.7",
     "express": "^4.16.4",
+    "graphql": "^14.1.1",
     "pg": "^7.8.1",
     "sequelize": "^4.42.1"
   },

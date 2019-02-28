@@ -1,6 +1,8 @@
 import Sequelize from 'sequelize';
 import basicAuth from 'basic-auth';
 import express from 'express';
+import {ApolloServer} from 'apollo-server-express';
+import {resolvers, typeDefs} from './schema';
 
 const app = express();
 const sequelize = new Sequelize(process.env.DATABASE_URL);
@@ -28,7 +30,8 @@ const Key = sequelize.define('key', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true
-  }
+  },
+  email: Sequelize.STRING
 });
 
 Project.hasMany(Key);
@@ -36,7 +39,7 @@ Key.belongsTo(Project);
 
 app.get('/', (req, res) => res.sendStatus(200));
 
-app.use(async (req, res, next) => {
+app.get('/test/:apiKey', async (req, res) => {
   const auth = basicAuth(req);
   if (auth) {
     const project = await Project.findOne({
@@ -47,35 +50,49 @@ app.use(async (req, res, next) => {
     });
 
     if (project) {
-      res.locals.project = project;
-      next();
-      return;
-    }
-  }
+      const [key] = await project.getKeys({
+        where: {
+          id: req.params.apiKey
+        }
+      });
 
-  res.sendStatus(403);
-});
-
-app.get('/test/:apiKey', async (req, res) => {
-  try {
-    const [key] = await res.locals.project.getKeys({
-      where: {
-        id: req.params.apiKey
+      if (key) {
+        res.sendStatus(200);
+        return;
       }
-    });
-
-    if (!key) {
-      throw new Error('Key not found');
     }
+  }
 
-    res.sendStatus(200);
-  } catch (error) {
-    res.status(403).send(error);
+  res.sendStatus(401);
+});
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: {
+    Project
   }
 });
+
+server.applyMiddleware({app});
 
 sequelize.sync().then(() => {
+  // const user = await User.create();
+  // const project = await Project.create({
+  //   name: 'HLTV'
+  // });
+
+  // const key = await Key.create({
+  //   email: 'tdblades@gmail.com'
+  // });
+  //
+  // await project.setUser(user);
+  // await key.setProject(project);
+
   app.listen(process.env.PORT, () => {
-    console.log(`🚀 Server ready at http://localhost:${process.env.PORT}`);
+    console.log(
+      `🚀 Server ready at http://localhost:${process.env.PORT +
+        server.graphqlPath}`
+    );
   });
 });
