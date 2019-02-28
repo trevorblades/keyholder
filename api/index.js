@@ -5,12 +5,23 @@ import express from 'express';
 const app = express();
 const sequelize = new Sequelize(process.env.DATABASE_URL);
 
-const User = sequelize.define('user', {
-  apiKey: {
+const User = sequelize.define('user');
+
+const Project = sequelize.define('project', {
+  id: {
+    type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV4,
+    primaryKey: true
+  },
+  name: Sequelize.STRING,
+  accessKey: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4
   }
 });
+
+User.hasMany(Project);
+Project.belongsTo(User);
 
 const Key = sequelize.define('key', {
   id: {
@@ -20,23 +31,23 @@ const Key = sequelize.define('key', {
   }
 });
 
-Key.belongsTo(User);
-User.hasMany(Key);
+Project.hasMany(Key);
+Key.belongsTo(Project);
 
 app.get('/', (req, res) => res.sendStatus(200));
 
 app.use(async (req, res, next) => {
   const auth = basicAuth(req);
   if (auth) {
-    const user = await User.findOne({
+    const project = await Project.findOne({
       where: {
         id: auth.name,
-        apiKey: auth.pass
+        accessKey: auth.pass
       }
     });
 
-    if (user) {
-      res.locals.user = user;
+    if (project) {
+      res.locals.project = project;
       next();
       return;
     }
@@ -47,7 +58,7 @@ app.use(async (req, res, next) => {
 
 app.get('/test/:apiKey', async (req, res) => {
   try {
-    const [key] = await res.locals.user.getKeys({
+    const [key] = await res.locals.project.getKeys({
       where: {
         id: req.params.apiKey
       }
