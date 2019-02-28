@@ -1,6 +1,6 @@
 {
   "name": "keyholder",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Simple API key issuing and authentication",
   "author": "Trevor Blades <tdblades@gmail.com>",
   "repository": "trevorblades/keyholder",
