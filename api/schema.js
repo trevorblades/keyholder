@@ -10,6 +10,7 @@ export const typeDefs = gql`
     id: ID
     name: String
     accessKey: String
+    createdAt: String
     keys: [Key]
   }
 
@@ -24,7 +25,7 @@ export const resolvers = {
     keys: parent => parent.getKeys()
   },
   Query: {
-    project: (parent, args, {Project}) => Project.findById(args.id),
+    project: (parent, args, {Project}) => Project.findByPk(args.id),
     projects: (parent, args, {Project}) => Project.findAll()
   }
 };

@@ -1,13 +1,20 @@
 import Sequelize from 'sequelize';
+import axios from 'axios';
 import basicAuth from 'basic-auth';
+import cors from 'cors';
 import express from 'express';
+import jwt from 'jsonwebtoken';
+import querystring from 'querystring';
 import {ApolloServer} from 'apollo-server-express';
 import {resolvers, typeDefs} from './schema';
 
 const app = express();
 const sequelize = new Sequelize(process.env.DATABASE_URL);
 
-const User = sequelize.define('user');
+const User = sequelize.define('user', {
+  name: Sequelize.STRING,
+  email: Sequelize.STRING
+});
 
 const Project = sequelize.define('project', {
   id: {
@@ -30,14 +37,52 @@ const Key = sequelize.define('key', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true
-  },
-  email: Sequelize.STRING
+  }
 });
 
 Project.hasMany(Key);
 Key.belongsTo(Project);
 
 app.get('/', (req, res) => res.sendStatus(200));
+
+app.get('/auth', cors(), async (req, res) => {
+  const accessToken = await axios
+    .post('https://github.com/login/oauth/access_token', {
+      client_id: process.env.GITHUB_CLIENT_ID,
+      client_secret: process.env.GITHUB_CLIENT_SECRET,
+      code: req.query.code
+    })
+    .then(({data}) => querystring.parse(data).access_token);
+
+  const instance = axios.create({
+    headers: {
+      authorization: `token ${accessToken}`
+    }
+  });
+
+  const {id, name} = await instance
+    .get('https://api.github.com/user')
+    .then(response => response.data);
+
+  let user = await User.findByPk(id);
+  if (!user) {
+    const [{email}] = await instance
+      .get('https://api.github.com/user/emails', {
+        headers: {
+          authorization: `token ${accessToken}`
+        }
+      })
+      .then(({data}) => data.filter(({primary}) => primary));
+
+    user = await User.create({
+      id,
+      name,
+      email
+    });
+  }
+
+  res.send(jwt.sign(user.get(), process.env.TOKEN_SECRET));
+});
 
 app.get('/test/:apiKey', async (req, res) => {
   const auth = basicAuth(req);
@@ -78,23 +123,11 @@ const server = new ApolloServer({
 server.applyMiddleware({
   app,
   cors: {
-    origin: 'https://keyholder.dev'
+    // origin: 'https://keyholder.dev'
   }
 });
 
 sequelize.sync().then(() => {
-  // const user = await User.create();
-  // const project = await Project.create({
-  //   name: 'HLTV'
-  // });
-
-  // const key = await Key.create({
-  //   email: 'tdblades@gmail.com'
-  // });
-  //
-  // await project.setUser(user);
-  // await key.setProject(project);
-
   app.listen(process.env.PORT, () => {
     console.log(
       `🚀 Server ready at http://localhost:${process.env.PORT +
