@@ -11,7 +11,8 @@ export const typeDefs = gql`
   type Key {
     id: ID
     value: String
-    createdAt: String
+    updatedAt: String
+    projectId: ID
     user: User
     project: Project
   }
