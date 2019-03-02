@@ -3,6 +3,7 @@ import axios from 'axios';
 import basicAuth from 'basic-auth';
 import cors from 'cors';
 import express from 'express';
+import hat from 'hat';
 import jwt from 'jsonwebtoken';
 import querystring from 'querystring';
 import {ApolloServer, AuthenticationError} from 'apollo-server-express';
@@ -33,12 +34,14 @@ User.hasMany(Project);
 Project.belongsTo(User);
 
 const Key = sequelize.define('key', {
-  id: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
+  value: {
+    type: Sequelize.STRING,
+    defaultValue: hat
   }
 });
+
+User.hasMany(Key);
+Key.belongsTo(User);
 
 Project.hasMany(Key);
 Key.belongsTo(Project);
@@ -98,7 +101,7 @@ app.get('/test/:apiKey', async (req, res) => {
     if (project) {
       const [key] = await project.getKeys({
         where: {
-          id: req.params.apiKey
+          value: req.params.apiKey
         }
       });
 
@@ -122,6 +125,7 @@ const server = new ApolloServer({
       const {id} = jwt.verify(token, process.env.TOKEN_SECRET);
       const user = await User.findByPk(id);
       return {
+        Key,
         Project,
         user
       };
