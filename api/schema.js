@@ -26,6 +26,6 @@ export const resolvers = {
   },
   Query: {
     project: (parent, args, {Project}) => Project.findByPk(args.id),
-    projects: (parent, args, {Project}) => Project.findAll()
+    projects: (parent, args, {user}) => user.getProjects()
   }
 };

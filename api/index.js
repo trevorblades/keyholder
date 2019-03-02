@@ -5,7 +5,7 @@ import cors from 'cors';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import querystring from 'querystring';
-import {ApolloServer} from 'apollo-server-express';
+import {ApolloServer, AuthenticationError} from 'apollo-server-express';
 import {resolvers, typeDefs} from './schema';
 
 const app = express();
@@ -45,6 +45,7 @@ Key.belongsTo(Project);
 
 app.get('/', (req, res) => res.sendStatus(200));
 
+const GITHUB_API_URL = 'https://api.github.com';
 app.get('/auth', cors(), async (req, res) => {
   const accessToken = await axios
     .post('https://github.com/login/oauth/access_token', {
@@ -61,13 +62,13 @@ app.get('/auth', cors(), async (req, res) => {
   });
 
   const {id, name} = await instance
-    .get('https://api.github.com/user')
+    .get(`${GITHUB_API_URL}/user`)
     .then(response => response.data);
 
   let user = await User.findByPk(id);
   if (!user) {
     const [{email}] = await instance
-      .get('https://api.github.com/user/emails', {
+      .get(`${GITHUB_API_URL}/user/emails`, {
         headers: {
           authorization: `token ${accessToken}`
         }
@@ -114,8 +115,19 @@ app.get('/test/:apiKey', async (req, res) => {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: {
-    Project
+  async context({req}) {
+    try {
+      const matches = req.headers.authorization.match(/bearer (\S+)/i);
+      const token = matches[1];
+      const {id} = jwt.verify(token, process.env.TOKEN_SECRET);
+      const user = await User.findByPk(id);
+      return {
+        Project,
+        user
+      };
+    } catch (error) {
+      throw new AuthenticationError(error);
+    }
   }
 });
 
@@ -123,7 +135,10 @@ const server = new ApolloServer({
 server.applyMiddleware({
   app,
   cors: {
-    // origin: 'https://keyholder.dev'
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? 'https://keyholder.dev'
+        : /localhost:\d{4}$/
   }
 });
 
