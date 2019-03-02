@@ -1,5 +1,5 @@
 import hat from 'hat';
-import {gql} from 'apollo-server-express';
+import {UserInputError, gql} from 'apollo-server-express';
 
 export const typeDefs = gql`
   type User {
@@ -22,6 +22,7 @@ export const typeDefs = gql`
     name: String
     accessKey: String
     createdAt: String
+    userId: ID
     keys: [Key]
     user: User
   }
@@ -35,7 +36,9 @@ export const typeDefs = gql`
   type Mutation {
     createKey(projectId: ID!): Key
     updateKey(id: ID!): Key
+    deleteKey(id: ID!): Key
     createProject(name: String!): Project
+    deleteProject(id: ID!): Project
   }
 `;
 
@@ -60,15 +63,14 @@ export const resolvers = {
         projectId
       }),
     updateKey: async (parent, {id}, {user}) => {
-      const [key] = await user.getKeys({
-        where: {
-          id
-        }
-      });
-
+      const key = await user.getKey(id);
       return key.update({
         value: hat()
       });
+    },
+    deleteKey: async (parent, {id}, {user}) => {
+      const key = await user.getKey(id);
+      return key.destroy();
     },
     createProject: async (parent, {name}, {Key, Project, user}) => {
       const project = await Project.create({name});
@@ -78,6 +80,20 @@ export const resolvers = {
       await key.setProject(project);
       await key.setUser(user);
 
+      return project;
+    },
+    deleteProject: async (parent, {id}, {user}) => {
+      const [project] = await user.getProjects({
+        where: {
+          id
+        }
+      });
+
+      if (!project) {
+        throw new UserInputError('Project not found');
+      }
+
+      await project.destroy();
       return project;
     }
   }

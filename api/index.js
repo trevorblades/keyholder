@@ -6,7 +6,11 @@ import express from 'express';
 import hat from 'hat';
 import jwt from 'jsonwebtoken';
 import querystring from 'querystring';
-import {ApolloServer, AuthenticationError} from 'apollo-server-express';
+import {
+  ApolloServer,
+  AuthenticationError,
+  UserInputError
+} from 'apollo-server-express';
 import {resolvers, typeDefs} from './schema';
 
 const app = express();
@@ -16,6 +20,20 @@ const User = sequelize.define('user', {
   name: Sequelize.STRING,
   email: Sequelize.STRING
 });
+
+User.prototype.getKey = async function(id) {
+  const [key] = await this.getKeys({
+    where: {
+      id
+    }
+  });
+
+  if (!key) {
+    throw new UserInputError('Key not found');
+  }
+
+  return key;
+};
 
 const Project = sequelize.define('project', {
   id: {
@@ -43,8 +61,11 @@ const Key = sequelize.define('key', {
 User.hasMany(Key);
 Key.belongsTo(User);
 
-Project.hasMany(Key);
 Key.belongsTo(Project);
+Project.hasMany(Key, {
+  onDelete: 'cascade',
+  hooks: true
+});
 
 app.get('/', (req, res) => res.sendStatus(200));
 
