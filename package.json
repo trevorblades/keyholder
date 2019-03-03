@@ -1,24 +1,13 @@
 {
-  "name": "keyholder",
-  "version": "0.0.3",
-  "description": "Simple API key issuing and authentication",
-  "author": "Trevor Blades <tdblades@gmail.com>",
-  "repository": "trevorblades/keyholder",
-  "license": "MIT",
+  "private": true,
   "engines": {
     "node": "10"
   },
   "scripts": {
-    "pretest": "eslint lib api",
+    "pretest": "eslint api",
     "test": "echo \"Error: no test specified\" && exit",
     "start": "nodemon -r esm -r dotenv/config api/index.js"
   },
-  "keywords": [
-    "api",
-    "key",
-    "authentication"
-  ],
-  "main": "lib/index.js",
   "dependencies": {
     "apollo-server-express": "^2.4.8",
     "axios": "^0.18.0",
@@ -36,6 +25,7 @@
     "@trevorblades/eslint-config": "^6.21.0",
     "dotenv": "^6.2.0",
     "eslint": "^5.14.1",
+    "lerna": "^3.10.7",
     "nodemon": "^1.18.10"
   }
 }
