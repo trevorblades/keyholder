@@ -4,6 +4,7 @@
   "description": "Simple API key issuing and authentication",
   "author": "Trevor Blades <tdblades@gmail.com>",
   "repository": "trevorblades/keyholder",
+  "homepage": "https://keyholder.dev",
   "license": "MIT",
   "scripts": {
     "pretest": "eslint index.js",
