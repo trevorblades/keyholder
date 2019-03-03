@@ -110,30 +110,33 @@ app.get('/auth', cors(), async (req, res) => {
 });
 
 app.get('/test/:apiKey', async (req, res) => {
-  const auth = basicAuth(req);
-  if (auth) {
+  try {
+    const {name, pass} = basicAuth(req);
     const project = await Project.findOne({
       where: {
-        id: auth.name,
-        accessKey: auth.pass
+        id: name,
+        accessKey: pass
       }
     });
 
-    if (project) {
-      const [key] = await project.getKeys({
-        where: {
-          value: req.params.apiKey
-        }
-      });
-
-      if (key) {
-        res.sendStatus(200);
-        return;
-      }
+    if (!project) {
+      throw new Error('Project not found');
     }
-  }
 
-  res.sendStatus(401);
+    const [key] = await project.getKeys({
+      where: {
+        value: req.params.apiKey
+      }
+    });
+
+    if (!key) {
+      throw new Error('Invalid API key');
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(401);
+  }
 });
 
 const server = new ApolloServer({
@@ -156,7 +159,6 @@ const server = new ApolloServer({
   }
 });
 
-// TODO: add auth
 server.applyMiddleware({
   app,
   cors: {

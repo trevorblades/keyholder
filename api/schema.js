@@ -73,12 +73,16 @@ export const resolvers = {
       return key.destroy();
     },
     createProject: async (parent, {name}, {Key, Project, user}) => {
-      const project = await Project.create({name});
-      await project.setUser(user);
+      const project = await Project.create({
+        name,
+        userId: user.id
+      });
 
-      const key = await Key.create();
-      await key.setProject(project);
-      await key.setUser(user);
+      // create an API key for the project owner
+      await Key.create({
+        userId: user.id,
+        projectId: project.id
+      });
 
       return project;
     },
