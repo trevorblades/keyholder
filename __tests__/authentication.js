@@ -10,3 +10,8 @@ test('authenticates a valid key', async () => {
   const isValid = await keyholder.test(process.env.TEST_API_KEY);
   expect(isValid).toBe(true);
 });
+
+test('denies an invalid key', async () => {
+  const isValid = await keyholder.test('foo');
+  expect(isValid).toBe(false);
+});

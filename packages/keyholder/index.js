@@ -23,7 +23,6 @@ module.exports = class Keyholder {
 
       return status === 200;
     } catch (error) {
-      console.log(error);
       return false;
     }
   }
