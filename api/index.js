@@ -135,7 +135,7 @@ app.get('/test/:apiKey', async (req, res) => {
 
     res.sendStatus(200);
   } catch (error) {
-    res.sendStatus(401);
+    res.status(401).send(error);
   }
 });
 

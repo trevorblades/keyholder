@@ -4,8 +4,8 @@
     "node": "10"
   },
   "scripts": {
-    "pretest": "eslint api",
-    "test": "echo \"Error: no test specified\" && exit",
+    "pretest": "eslint __tests__ api packages",
+    "test": "jest",
     "start": "nodemon -r esm -r dotenv/config api/index.js"
   },
   "dependencies": {
@@ -25,6 +25,7 @@
     "@trevorblades/eslint-config": "^6.21.0",
     "dotenv": "^6.2.0",
     "eslint": "^5.14.1",
+    "jest": "^24.1.0",
     "lerna": "^3.10.7",
     "nodemon": "^1.18.10"
   }

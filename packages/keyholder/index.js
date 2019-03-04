@@ -1,5 +1,6 @@
 const axios = require('axios');
 const basicAuth = require('basic-auth');
+const http = require('axios/lib/adapters/http');
 
 module.exports = class Keyholder {
   constructor({id, apiKey}) {
@@ -8,17 +9,23 @@ module.exports = class Keyholder {
   }
 
   async test(apiKey) {
-    const {status} = await axios.get(
-      `https://keyholder.herokuapp.com/test/${apiKey}`,
-      {
-        auth: {
-          username: this.id,
-          password: this.apiKey
+    try {
+      const {status} = await axios.get(
+        `https://keyholder.herokuapp.com/test/${apiKey}`,
+        {
+          adapter: http,
+          auth: {
+            username: this.id,
+            password: this.apiKey
+          }
         }
-      }
-    );
+      );
 
-    return status === 200;
+      return status === 200;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 
   basicAuth(req) {

@@ -6,10 +6,6 @@
   "repository": "trevorblades/keyholder",
   "homepage": "https://keyholder.dev",
   "license": "MIT",
-  "scripts": {
-    "pretest": "eslint index.js",
-    "test": "echo \"Error: no test specified\" && exit"
-  },
   "keywords": [
     "api",
     "key",
