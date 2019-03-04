@@ -4,12 +4,8 @@
 
 [![Build Status](https://travis-ci.com/trevorblades/keyholder.svg?branch=master)](https://travis-ci.com/trevorblades/keyholder)
 
-Simple API key generation and authentication
-
-## Introduction
+This repo contains the source code for the `keyholder` npm module, and our itsy-bitsy Node API.
 
 [Keyholder](https://keyholder.dev) provides a set of tools that make it easy to protect your API routes without dedicating barely any time to setting up those protections. Create a project, generate API keys, and authenticate them in one line* of code.
 
-## Read more
-
-[Read more about Keyholder here](https://keyholder.dev)
+Read more about using Keyholder [here](https://keyholder.dev).
