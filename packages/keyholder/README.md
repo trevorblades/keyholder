@@ -24,3 +24,7 @@ const keyholder = new Keyholder({
 
 keyholder.test('RANDOM_API_KEY'); // true/false
 ```
+
+## Documentation
+
+[Read more here](https://keyholder.dev/docs)
