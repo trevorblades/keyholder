@@ -6,6 +6,8 @@
 
 This repo contains the source code for the `keyholder` npm module, and the itsy-bitsy Node API that powers it.
 
-[Keyholder](https://keyholder.dev) provides a set of tools that make it easy to protect your API routes without needing to spend heaps of time setting up those protections. Create a project, generate API keys, and authenticate them in one line* of code.
+[Keyholder](https://keyholder.dev) provides a set of tools that make it easy to protect your API routes without needing to spend heaps of time setting up those protections. Create a project, generate API keys, and authenticate them in just a few lines of code.
 
-Read more about using Keyholder [here](https://keyholder.dev).
+## Packages
+
+- [`keyholder`](./packages/keyholder)
