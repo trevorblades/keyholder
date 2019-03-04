@@ -1,4 +1,5 @@
 import hat from 'hat';
+import {Key, Project} from './db';
 import {UserInputError, gql} from 'apollo-server-express';
 
 export const typeDefs = gql`
@@ -66,11 +67,11 @@ export const resolvers = {
       user.getKeys({
         order: [['id', 'desc']]
       }),
-    project: (parent, args, {Project}) => Project.findByPk(args.id),
+    project: (parent, args) => Project.findByPk(args.id),
     projects: (parent, args, {user}) => user.getProjects()
   },
   Mutation: {
-    createKey: (parent, {projectId}, {Key, user}) =>
+    createKey: (parent, {projectId}, {user}) =>
       Key.create({
         userId: user.id,
         projectId
@@ -86,7 +87,7 @@ export const resolvers = {
       await key.destroy();
       return key;
     },
-    createProject: async (parent, {name}, {Key, Project, user}) => {
+    createProject: async (parent, {name}, {user}) => {
       const project = await Project.create({
         name,
         userId: user.id

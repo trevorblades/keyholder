@@ -22,7 +22,9 @@ const keyholder = new Keyholder({
   projectAccessKey: 'YOUR_PROJECT_ACCESS_KEY'
 });
 
-keyholder.test('RANDOM_API_KEY'); // true/false
+keyholder.test('RANDOM_API_KEY').then(isValid => {
+  // isValid will be true or false
+});
 ```
 
 ## Documentation

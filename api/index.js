@@ -1,71 +1,14 @@
-import Sequelize from 'sequelize';
 import axios from 'axios';
 import basicAuth from 'basic-auth';
 import cors from 'cors';
 import express from 'express';
-import hat from 'hat';
 import jwt from 'jsonwebtoken';
 import querystring from 'querystring';
-import {
-  ApolloServer,
-  AuthenticationError,
-  UserInputError
-} from 'apollo-server-express';
+import {ApolloServer, AuthenticationError} from 'apollo-server-express';
+import {Project, User, sequelize} from './db';
 import {resolvers, typeDefs} from './schema';
 
 const app = express();
-const sequelize = new Sequelize(process.env.DATABASE_URL);
-
-const User = sequelize.define('user', {
-  name: Sequelize.STRING,
-  email: Sequelize.STRING
-});
-
-User.prototype.getKey = async function(id) {
-  const [key] = await this.getKeys({
-    where: {
-      id
-    }
-  });
-
-  if (!key) {
-    throw new UserInputError('Key not found');
-  }
-
-  return key;
-};
-
-const Project = sequelize.define('project', {
-  id: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
-  },
-  name: Sequelize.STRING,
-  accessKey: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4
-  }
-});
-
-User.hasMany(Project);
-Project.belongsTo(User);
-
-const Key = sequelize.define('key', {
-  value: {
-    type: Sequelize.STRING,
-    defaultValue: hat
-  }
-});
-
-User.hasMany(Key);
-Key.belongsTo(User);
-
-Key.belongsTo(Project);
-Project.hasMany(Key, {
-  onDelete: 'cascade',
-  hooks: true
-});
 
 app.get('/', (req, res) => res.sendStatus(200));
 
@@ -148,11 +91,7 @@ const server = new ApolloServer({
       const token = matches[1];
       const {id} = jwt.verify(token, process.env.TOKEN_SECRET);
       const user = await User.findByPk(id);
-      return {
-        Key,
-        Project,
-        user
-      };
+      return {user};
     } catch (error) {
       throw new AuthenticationError(error);
     }
