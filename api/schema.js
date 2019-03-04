@@ -23,6 +23,7 @@ export const typeDefs = gql`
     accessKey: String
     createdAt: String
     userId: ID
+    key: Key
     keys: [Key]
     user: User
   }
@@ -48,11 +49,23 @@ export const resolvers = {
     user: parent => parent.getUser()
   },
   Project: {
+    key: async (parent, args, {user}) => {
+      const [key] = await user.getKeys({
+        where: {
+          projectId: parent.id
+        }
+      });
+
+      return key;
+    },
     keys: parent => parent.getKeys(),
     user: parent => parent.getUser()
   },
   Query: {
-    keys: (parent, args, {user}) => user.getKeys(),
+    keys: (parent, args, {user}) =>
+      user.getKeys({
+        order: [['id', 'desc']]
+      }),
     project: (parent, args, {Project}) => Project.findByPk(args.id),
     projects: (parent, args, {user}) => user.getProjects()
   },
@@ -70,7 +83,8 @@ export const resolvers = {
     },
     deleteKey: async (parent, {id}, {user}) => {
       const key = await user.getKey(id);
-      return key.destroy();
+      await key.destroy();
+      return key;
     },
     createProject: async (parent, {name}, {Key, Project, user}) => {
       const project = await Project.create({
