@@ -1,4 +1,4 @@
-<img align="right" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/155/key_1f511.png" alt="Major Key" width="120">
+<img align="right" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/155/key_1f511.png" alt="key" width="120">
 
 # Keyholder
 
