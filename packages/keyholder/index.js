@@ -3,9 +3,9 @@ const basicAuth = require('basic-auth');
 const http = require('axios/lib/adapters/http');
 
 module.exports = class Keyholder {
-  constructor({id, apiKey}) {
-    this.id = id;
-    this.apiKey = apiKey;
+  constructor({projectId, projectAccessKey}) {
+    this.projectId = projectId;
+    this.projectAccessKey = projectAccessKey;
   }
 
   async test(apiKey) {
@@ -15,8 +15,8 @@ module.exports = class Keyholder {
         {
           adapter: http,
           auth: {
-            username: this.id,
-            password: this.apiKey
+            username: this.projectId,
+            password: this.projectAccessKey
           }
         }
       );

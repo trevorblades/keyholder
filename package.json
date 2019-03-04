@@ -5,7 +5,7 @@
   },
   "scripts": {
     "pretest": "eslint __tests__ api packages",
-    "test": "jest",
+    "test": "jest --setupFiles dotenv/config",
     "start": "nodemon -r esm -r dotenv/config api/index.js"
   },
   "dependencies": {

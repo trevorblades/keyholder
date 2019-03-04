@@ -1,8 +1,5 @@
 /* eslint-env jest */
 const Keyholder = require('../packages/keyholder');
-const dotenv = require('dotenv');
-
-dotenv.config();
 
 const keyholder = new Keyholder({
   projectId: process.env.TEST_PROJECT_ID,
