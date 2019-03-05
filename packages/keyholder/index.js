@@ -11,7 +11,7 @@ module.exports = class Keyholder {
   async test(apiKey) {
     try {
       const {status} = await axios.get(
-        `https://keyholder.herokuapp.com/test/${apiKey}`,
+        `https://api.keyholder.dev/test/${apiKey}`,
         {
           adapter: http,
           auth: {
