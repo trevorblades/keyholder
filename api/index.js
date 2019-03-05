@@ -12,7 +12,6 @@ const app = express();
 
 app.get('/', (req, res) => res.sendStatus(200));
 
-const GITHUB_API_URL = 'https://api.github.com';
 app.get('/auth', cors(), async (req, res) => {
   const accessToken = await axios
     .post('https://github.com/login/oauth/access_token', {
@@ -22,20 +21,21 @@ app.get('/auth', cors(), async (req, res) => {
     })
     .then(({data}) => querystring.parse(data).access_token);
 
-  const instance = axios.create({
+  const githubApi = axios.create({
+    baseURL: 'https://api.github.com',
     headers: {
       authorization: `token ${accessToken}`
     }
   });
 
-  const {id, name} = await instance
-    .get(`${GITHUB_API_URL}/user`)
+  const {id, name} = await githubApi
+    .get('/user')
     .then(response => response.data);
 
   let user = await User.findByPk(id);
   if (!user) {
-    const [{email}] = await instance
-      .get(`${GITHUB_API_URL}/user/emails`, {
+    const [{email}] = await githubApi
+      .get('/user/emails', {
         headers: {
           authorization: `token ${accessToken}`
         }
